@@ -5,22 +5,22 @@ import random
 
 from file_operations import save_file, delete_file
 
-def load_comic():
+def load_comics():
     response = requests.get("https://xkcd.com/info.0.json")
     response.raise_for_status()
     total_comics_num = response.json()["num"]
-    comic_num = random.randrange(total_comics_num)
-    response = requests.get("https://xkcd.com/{}/info.0.json".format(comic_num))
+    comics_num = random.randrange(total_comics_num)
+    response = requests.get("https://xkcd.com/{}/info.0.json".format(comics_num))
     response.raise_for_status()
     reply = response.json()
     image_url = reply["img"]
     topic = reply["safe_title"]
     image_path = "{}.png".format(topic)
-    comic_comment = reply["alt"]
+    comics_comment = reply["alt"]
     image = requests.get(image_url)
     response.raise_for_status()
     save_file(image, image_path)
-    return image_path, comic_comment
+    return image_path, comics_comment
 
 
 def get_url_for_load(access_token, group_id):
@@ -79,13 +79,13 @@ def save_to_album(comics_server, comics_hash, comics_photo, access_token, group_
     return owner_id, media_id
 
 
-def publish(owner_id, media_id, comic_comment, access_token, group_id):
+def publish(owner_id, media_id, comics_comment, access_token, group_id):
     headers = {"Authorization": "Bearer {}".format(access_token)}
     payload = {
         "owner_id": -group_id,
         "v": 5.154,
         "attachments": "photo{}_{}".format(owner_id, media_id),
-        "message": comic_comment
+        "message": comics_comment
     }
 
     response = requests.post(
@@ -99,7 +99,7 @@ def publish(owner_id, media_id, comic_comment, access_token, group_id):
 
 if __name__ == "__main__":
     load_dotenv()
-    image_path, comic_comment = load_comic()
+    image_path, comics_comment = load_comics()
     group_id = int(os.environ['GROUP_ID'])
     access_token = os.environ['ACCESS_TOKEN']
     upload_url = get_url_for_load(access_token, group_id)
@@ -111,5 +111,5 @@ if __name__ == "__main__":
         access_token,
         group_id
     )
-    publish(owner_id, media_id, comic_comment, access_token, group_id)
+    publish(owner_id, media_id, comics_comment, access_token, group_id)
     delete_file(image_path)
