@@ -19,7 +19,8 @@ def load_comics():
     comics_comment = reply["alt"]
     image = requests.get(image_url)
     response.raise_for_status()
-    save_file(image, image_path)
+    with open(image_path, "wb") as file:
+        file.write(image.content)
     return image_path, comics_comment
 
 
@@ -112,4 +113,4 @@ if __name__ == "__main__":
         group_id
     )
     publish(owner_id, media_id, comics_comment, access_token, group_id)
-    delete_file(image_path)
+    os.remove(image_path)
