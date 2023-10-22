@@ -47,8 +47,8 @@ def check_vk_api_errors(response_data):
 def upload_image_to_server(image_path, upload_url):
     with open(image_path, 'rb') as file:
         files = {'photo': file}
-    response = requests.post(upload_url, files=files)
-    response.raise_for_status()
+        response = requests.post(upload_url, files=files)
+        response.raise_for_status()
     response_data = response.json()
     check_vk_api_errors(response_data)
     comic_server = response_data["server"]
