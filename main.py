@@ -3,9 +3,8 @@ import os
 from dotenv import load_dotenv
 import random
 
-from file_operations import save_file, delete_file
 
-def load_comics():
+def download_random_comics():
     response = requests.get("https://xkcd.com/info.0.json")
     response.raise_for_status()
     total_comics_num = response.json()["num"]
@@ -24,7 +23,7 @@ def load_comics():
     return image_path, comics_comment
 
 
-def get_url_for_load(access_token, group_id):
+def get_url_for_upload(access_token, group_id):
     payload = {"group_id": group_id, "v": 5.154}
     headers = {"Authorization": "Bearer {}".format(access_token)}
     response = requests.get(
@@ -45,7 +44,7 @@ def check_vk_api_errors(response):
         exit()
 
 
-def load_to_server(image_path, upload_url):
+def upload_image_to_server(image_path, upload_url):
     with open(image_path, 'rb') as file:
         files = {'photo': file}
         response = requests.post(upload_url, files=files)
@@ -58,7 +57,7 @@ def load_to_server(image_path, upload_url):
     return comics_server, comics_hash, comics_photo
 
 
-def save_to_album(comics_server, comics_hash, comics_photo, access_token, group_id):
+def save_image_to_album(comics_server, comics_hash, comics_photo, access_token, group_id):
     headers = {"Authorization": "Bearer {}".format(access_token)}
     payload = {
         "group_id": group_id,
@@ -100,12 +99,12 @@ def publish(owner_id, media_id, comics_comment, access_token, group_id):
 
 if __name__ == "__main__":
     load_dotenv()
-    image_path, comics_comment = load_comics()
+    image_path, comics_comment = download_random_comics()
     group_id = int(os.environ['GROUP_ID'])
     access_token = os.environ['ACCESS_TOKEN']
-    upload_url = get_url_for_load(access_token, group_id)
-    comics_server, comics_hash, comics_photo = load_to_server(image_path, upload_url)
-    owner_id, media_id = save_to_album(
+    upload_url = get_url_for_upload(access_token, group_id)
+    comics_server, comics_hash, comics_photo = upload_image_to_server(image_path, upload_url)
+    owner_id, media_id = save_image_to_album(
         comics_server,
         comics_hash,
         comics_photo,
