@@ -49,11 +49,11 @@ def upload_image_to_server(image_path, upload_url):
         files = {'photo': file}
         response = requests.post(upload_url, files=files)
         response.raise_for_status()
-        reply = response.json()
-        check_vk_api_errors(reply)
-        comic_server = reply["server"]
-        comic_hash = reply["hash"]
-        comic_photo = reply["photo"]
+        response_data = response.json()
+        check_vk_api_errors(response_data)
+        comic_server = response_data["server"]
+        comic_hash = response_data["hash"]
+        comic_photo = response_data["photo"]
     return comic_server, comic_hash, comic_photo
 
 
@@ -72,10 +72,10 @@ def save_image_to_album(comic_server, comic_hash, comic_photo, access_token, gro
         headers=headers
     )
     response.raise_for_status()
-    reply = response.json()
-    check_vk_api_errors(reply)
-    owner_id = reply["response"][0]["owner_id"]
-    media_id = reply["response"][0]["id"]
+    response_data = response.json()
+    check_vk_api_errors(response_data)
+    owner_id = response_data["response"][0]["owner_id"]
+    media_id = response_data["response"][0]["id"]
     return owner_id, media_id
 
 
