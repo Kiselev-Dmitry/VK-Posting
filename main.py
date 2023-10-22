@@ -4,23 +4,23 @@ from dotenv import load_dotenv
 import random
 
 
-def download_random_comics():
+def download_random_comic():
     response = requests.get("https://xkcd.com/info.0.json")
     response.raise_for_status()
     total_comics_num = response.json()["num"]
-    comics_num = random.randrange(total_comics_num)
-    response = requests.get("https://xkcd.com/{}/info.0.json".format(comics_num))
+    comic_num = random.randrange(total_comics_num)
+    response = requests.get("https://xkcd.com/{}/info.0.json".format(comic_num))
     response.raise_for_status()
     reply = response.json()
     image_url = reply["img"]
     topic = reply["safe_title"]
     image_path = "{}.png".format(topic)
-    comics_comment = reply["alt"]
+    comic_comment = reply["alt"]
     image = requests.get(image_url)
     response.raise_for_status()
     with open(image_path, "wb") as file:
         file.write(image.content)
-    return image_path, comics_comment
+    return image_path, comic_comment
 
 
 def get_url_for_upload(access_token, group_id):
@@ -51,20 +51,20 @@ def upload_image_to_server(image_path, upload_url):
         response.raise_for_status()
         reply = response.json()
         check_vk_api_errors(reply)
-        comics_server = reply["server"]
-        comics_hash = reply["hash"]
-        comics_photo = reply["photo"]
-    return comics_server, comics_hash, comics_photo
+        comic_server = reply["server"]
+        comic_hash = reply["hash"]
+        comic_photo = reply["photo"]
+    return comic_server, comic_hash, comic_photo
 
 
-def save_image_to_album(comics_server, comics_hash, comics_photo, access_token, group_id):
+def save_image_to_album(comic_server, comic_hash, comic_photo, access_token, group_id):
     headers = {"Authorization": "Bearer {}".format(access_token)}
     payload = {
         "group_id": group_id,
         "v": 5.154,
-        "server": comics_server,
-        "hash": comics_hash,
-        "photo": comics_photo
+        "server": comic_server,
+        "hash": comic_hash,
+        "photo": comic_photo
     }
     response = requests.get(
         "https://api.vk.com/method/photos.saveWallPhoto",
@@ -79,13 +79,13 @@ def save_image_to_album(comics_server, comics_hash, comics_photo, access_token, 
     return owner_id, media_id
 
 
-def publish(owner_id, media_id, comics_comment, access_token, group_id):
+def publish(owner_id, media_id, comic_comment, access_token, group_id):
     headers = {"Authorization": "Bearer {}".format(access_token)}
     payload = {
         "owner_id": -group_id,
         "v": 5.154,
         "attachments": "photo{}_{}".format(owner_id, media_id),
-        "message": comics_comment
+        "message": comic_comment
     }
 
     response = requests.post(
@@ -99,17 +99,17 @@ def publish(owner_id, media_id, comics_comment, access_token, group_id):
 
 if __name__ == "__main__":
     load_dotenv()
-    image_path, comics_comment = download_random_comics()
+    image_path, comic_comment = download_random_comic()
     group_id = int(os.environ['GROUP_ID'])
     access_token = os.environ['ACCESS_TOKEN']
     upload_url = get_url_for_upload(access_token, group_id)
-    comics_server, comics_hash, comics_photo = upload_image_to_server(image_path, upload_url)
+    comic_server, comic_hash, comic_photo = upload_image_to_server(image_path, upload_url)
     owner_id, media_id = save_image_to_album(
-        comics_server,
-        comics_hash,
-        comics_photo,
+        comic_server,
+        comic_hash,
+        comic_photo,
         access_token,
         group_id
     )
-    publish(owner_id, media_id, comics_comment, access_token, group_id)
+    publish(owner_id, media_id, comic_comment, access_token, group_id)
     os.remove(image_path)
