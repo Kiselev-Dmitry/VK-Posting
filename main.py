@@ -24,12 +24,10 @@ def download_random_comic():
 
 
 def get_url_for_upload(tg_token, tg_group_id):
-    payload = {"group_id": tg_group_id, "v": 5.154}
-    headers = {"Authorization": "Bearer {}".format(tg_token)}
+    payload = {"access_token": tg_token, "group_id": tg_group_id, "v": 5.154}
     response = requests.get(
         "https://api.vk.com/method/photos.getWallUploadServer",
         params=payload,
-        headers=headers
     )
     response.raise_for_status()
     response_data = response.json()
@@ -58,8 +56,8 @@ def upload_image_to_server(image_path, upload_url):
 
 
 def save_image_to_album(comic_server, comic_hash, comic_photo, tg_token, tg_group_id):
-    headers = {"Authorization": "Bearer {}".format(tg_token)}
     payload = {
+        "access_token": tg_token,
         "group_id": tg_group_id,
         "v": 5.154,
         "server": comic_server,
@@ -69,7 +67,6 @@ def save_image_to_album(comic_server, comic_hash, comic_photo, tg_token, tg_grou
     response = requests.get(
         "https://api.vk.com/method/photos.saveWallPhoto",
         params=payload,
-        headers=headers
     )
     response.raise_for_status()
     response_data = response.json()
@@ -80,8 +77,8 @@ def save_image_to_album(comic_server, comic_hash, comic_photo, tg_token, tg_grou
 
 
 def publish(owner_id, media_id, comic_comment, tg_token, tg_group_id):
-    headers = {"Authorization": "Bearer {}".format(tg_token)}
     payload = {
+        "access_token": tg_token,
         "owner_id": -tg_group_id,
         "v": 5.154,
         "attachments": "photo{}_{}".format(owner_id, media_id),
@@ -91,7 +88,6 @@ def publish(owner_id, media_id, comic_comment, tg_token, tg_group_id):
     response = requests.post(
         "https://api.vk.com/method/wall.post",
         params=payload,
-        headers=headers
     )
     response.raise_for_status()
     check_vk_api_errors(response.json())
