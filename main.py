@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 import random
 
 
+class VK_API_Error(TypeError):
+    pass
+
+
 def download_random_comic():
     response = requests.get("https://xkcd.com/info.0.json")
     response.raise_for_status()
@@ -38,7 +42,12 @@ def get_url_for_upload(vk_access_token, vk_group_id):
 
 def check_vk_api_errors(json_content):
     if "error" in json_content:
-        raise requests.exceptions.HTTPError
+        raise VK_API_Error(
+            "error_code: {0}, error_message: {1}".format(
+                json_content["error"]["error_code"],
+                json_content["error"]["error_msg"],
+            )
+        )
 
 
 def upload_image_to_server(image_path, upload_url):
@@ -108,7 +117,5 @@ if __name__ == "__main__":
             vk_group_id
         )
         publish(owner_id, media_id, comic_comment, vk_access_token, vk_group_id)
-    except:
-        print("Возникла ошибка. Повторите еще раз.")
     finally:
         os.remove(image_path)
