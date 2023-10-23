@@ -23,8 +23,8 @@ def download_random_comic():
     return image_path, comic_comment
 
 
-def get_url_for_upload(tg_token, tg_group_id):
-    payload = {"access_token": tg_token, "group_id": tg_group_id, "v": 5.154}
+def get_url_for_upload(vk_access_token, vk_group_id):
+    payload = {"access_token": vk_access_token, "group_id": vk_group_id, "v": 5.154}
     response = requests.get(
         "https://api.vk.com/method/photos.getWallUploadServer",
         params=payload,
@@ -54,10 +54,10 @@ def upload_image_to_server(image_path, upload_url):
     return comic_server, comic_hash, comic_photo
 
 
-def save_image_to_album(comic_server, comic_hash, comic_photo, tg_token, tg_group_id):
+def save_image_to_album(comic_server, comic_hash, comic_photo, vk_access_token, vk_group_id):
     payload = {
-        "access_token": tg_token,
-        "group_id": tg_group_id,
+        "access_token": vk_access_token,
+        "group_id": vk_group_id,
         "v": 5.154,
         "server": comic_server,
         "hash": comic_hash,
@@ -75,10 +75,10 @@ def save_image_to_album(comic_server, comic_hash, comic_photo, tg_token, tg_grou
     return owner_id, media_id
 
 
-def publish(owner_id, media_id, comic_comment, tg_token, tg_group_id):
+def publish(owner_id, media_id, comic_comment, vk_access_token, vk_group_id):
     payload = {
-        "access_token": tg_token,
-        "owner_id": -tg_group_id,
+        "access_token": vk_access_token,
+        "owner_id": -vk_group_id,
         "v": 5.154,
         "attachments": "photo{}_{}".format(owner_id, media_id),
         "message": comic_comment
@@ -96,18 +96,18 @@ if __name__ == "__main__":
     load_dotenv()
     try:
         image_path, comic_comment = download_random_comic()
-        tg_group_id = int(os.environ['TG_GROUP_ID'])
-        tg_token = os.environ['TG_TOKEN']
-        upload_url = get_url_for_upload(tg_token, tg_group_id)
+        vk_group_id = int(os.environ['VK_GROUP_ID'])
+        vk_access_token = os.environ['VK_ACCESS_TOKEN']
+        upload_url = get_url_for_upload(vk_access_token, vk_group_id)
         comic_server, comic_hash, comic_photo = upload_image_to_server(image_path, upload_url)
         owner_id, media_id = save_image_to_album(
             comic_server,
             comic_hash,
             comic_photo,
-            tg_token,
-            tg_group_id
+            vk_access_token,
+            vk_group_id
         )
-        publish(owner_id, media_id, comic_comment, tg_token, tg_group_id)
+        publish(owner_id, media_id, comic_comment, vk_access_token, vk_group_id)
     except:
         print("Возникла ошибка. Повторите еще раз.")
     finally:
