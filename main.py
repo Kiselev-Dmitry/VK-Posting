@@ -11,11 +11,11 @@ def download_random_comic():
     comic_num = random.randrange(total_comics_num)
     response = requests.get("https://xkcd.com/{}/info.0.json".format(comic_num))
     response.raise_for_status()
-    reply = response.json()
-    image_url = reply["img"]
-    topic = reply["safe_title"]
+    json_content = response.json()
+    image_url = json_content["img"]
+    topic = json_content["safe_title"]
     image_path = "{}.png".format(topic)
-    comic_comment = reply["alt"]
+    comic_comment = json_content["alt"]
     image = requests.get(image_url)
     response.raise_for_status()
     with open(image_path, "wb") as file:
@@ -30,14 +30,14 @@ def get_url_for_upload(tg_token, tg_group_id):
         params=payload,
     )
     response.raise_for_status()
-    response_data = response.json()
-    check_vk_api_errors(response_data)
-    upload_url = response_data["response"]["upload_url"]
+    json_content = response.json()
+    check_vk_api_errors(json_content)
+    upload_url = json_content["response"]["upload_url"]
     return upload_url
 
 
-def check_vk_api_errors(response_data):
-    if "error" in response_data:
+def check_vk_api_errors(json_content):
+    if "error" in json_content:
         raise requests.exceptions.HTTPError
 
 
@@ -45,12 +45,12 @@ def upload_image_to_server(image_path, upload_url):
     with open(image_path, 'rb') as file:
         files = {'photo': file}
         response = requests.post(upload_url, files=files)
-        response.raise_for_status()
-    response_data = response.json()
-    check_vk_api_errors(response_data)
-    comic_server = response_data["server"]
-    comic_hash = response_data["hash"]
-    comic_photo = response_data["photo"]
+    response.raise_for_status()
+    json_content = response.json()
+    check_vk_api_errors(json_content)
+    comic_server = json_content["server"]
+    comic_hash = json_content["hash"]
+    comic_photo = json_content["photo"]
     return comic_server, comic_hash, comic_photo
 
 
@@ -68,10 +68,10 @@ def save_image_to_album(comic_server, comic_hash, comic_photo, tg_token, tg_grou
         params=payload,
     )
     response.raise_for_status()
-    response_data = response.json()
-    check_vk_api_errors(response_data)
-    owner_id = response_data["response"][0]["owner_id"]
-    media_id = response_data["response"][0]["id"]
+    json_content = response.json()
+    check_vk_api_errors(json_content)
+    owner_id = json_content["response"][0]["owner_id"]
+    media_id = json_content["response"][0]["id"]
     return owner_id, media_id
 
 
