@@ -94,17 +94,21 @@ def publish(owner_id, media_id, comic_comment, tg_token, tg_group_id):
 
 if __name__ == "__main__":
     load_dotenv()
-    image_path, comic_comment = download_random_comic()
-    tg_group_id = int(os.environ['TG_GROUP_ID'])
-    tg_token = os.environ['TG_TOKEN']
-    upload_url = get_url_for_upload(tg_token, tg_group_id)
-    comic_server, comic_hash, comic_photo = upload_image_to_server(image_path, upload_url)
-    owner_id, media_id = save_image_to_album(
-        comic_server,
-        comic_hash,
-        comic_photo,
-        tg_token,
-        tg_group_id
-    )
-    publish(owner_id, media_id, comic_comment, tg_token, tg_group_id)
-    os.remove(image_path)
+    try:
+        image_path, comic_comment = download_random_comic()
+        tg_group_id = int(os.environ['TG_GROUP_ID'])
+        tg_token = os.environ['TG_TOKEN']
+        upload_url = get_url_for_upload(tg_token, tg_group_id)
+        comic_server, comic_hash, comic_photo = upload_image_to_server(image_path, upload_url)
+        owner_id, media_id = save_image_to_album(
+            comic_server,
+            comic_hash,
+            comic_photo,
+            tg_token,
+            tg_group_id
+        )
+        publish(owner_id, media_id, comic_comment, tg_token, tg_group_id)
+    except:
+        print("Возникла ошибка. Повторите еще раз.")
+    finally:
+        os.remove(image_path)
