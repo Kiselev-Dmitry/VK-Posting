@@ -38,8 +38,7 @@ def get_url_for_upload(tg_token, tg_group_id):
 
 def check_vk_api_errors(response_data):
     if "error" in response_data:
-        print("Ошибка API VK")
-        exit()
+        raise requests.exceptions.HTTPError
 
 
 def upload_image_to_server(image_path, upload_url):
